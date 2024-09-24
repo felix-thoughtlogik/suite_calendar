@@ -12,7 +12,6 @@ var SuiteIDData = "";
 
 var BookingDataExist = false;
 var BookingDataExistList = [];
-UpdateSectionList=[];
 
 var FinalBookinglist = [];
 
@@ -20,27 +19,43 @@ var EmailTemplate_List = [];
 $(document).ready(function () {
 
   ZOHO.CREATOR.init().then(function (data) {
-    console.log("Zoho Page loaded");
+    // console.log("Zoho Page loaded");
 
     const queryParams = ZOHO.CREATOR.UTIL.getQueryParams();
-    // console.log("queryParams",queryParams);
+    console.log("queryParams",queryParams);
     BookingRecords_Func();
     EmailTemplate_List_Func();
     SalesOppRecords_Func();
+    fetchRagamamaDates();
+    fetchMadhuDates();
     if (FinalBookinglist.length == 0) {
       fetchRecordsFunc("").then(ReturnVal => {
         // console.log("ReturnVal New:", ReturnVal);
 
         FinalBookinglist = ReturnVal;
-        // console.log("FinalBookinglist:", FinalBookinglist);
+        console.log("FinalBookinglist:", FinalBookinglist);
+
+        // const firstSuiteAndVenue = (() => {
+        //   if (FinalBookinglist.length > 0) {
+        //     return {
+        //       Suite_Name: FinalBookinglist[0].Suite.display_value,
+        //       Venue_Name: FinalBookinglist[0].Venue.display_value
+        //     };
+        //   } else {
+        //     return null; // Return null or any other value if the array is empty
+        //   }
+        // })();
+
         // console.log(firstSuiteAndVenue);
-        var venueHeader = "test Suite";
-        var suiteHeader ="BEAUMONT ESTATE";
+        var venueHeader = queryParams.venuename;
+        var suiteHeader = queryParams.suitename;
         $(".venueheader p").text(venueHeader);
         $(".suiteheader p").text(suiteHeader);
 
 
         // console.log("venueHeader:", venueHeader, " suiteHeader: ", suiteHeader);
+
+
         createCalendar(currentYear, "");
       });
     }
@@ -75,7 +90,9 @@ $(document).ready(function () {
   // Initialize the calendar with the default year (2024)
   // createCalendar(currentYear,"");
 
-
+  var $carousel = $('#carouselExample');
+  var $indicator = $('#carouselIndicator');
+  var totalSlides = $('#carouselExample .carousel-item').length;
 
   $('#newBtn').on('click', function () {
 
@@ -189,46 +206,35 @@ $(document).ready(function () {
     $('#existBtn').addClass('btn-info').removeClass('btn-primary');
   });
 
-  // $('#carouselExample').on('slid.bs.carousel', function () {
-  //   var totalSlides2 = $('#carouselExample .carousel-item').length;
-  //   var currentSlide = $('#carouselExample .carousel-item.active').index() + 1;
-  //   $indicator.text(currentSlide + ' of ' + totalSlides2);
-  //   console.log(totalSlides2,currentSlide);
-  // });
-  
+  $('#carouselExample').on('slid.bs.carousel', function () {
+    var totalSlides2 = $('#carouselExample .carousel-item').length;
+    var currentSlide = $('#carouselExample .carousel-item.active').index() + 1;
+    $indicator.text(currentSlide + ' of ' + totalSlides2);
+  });
 
   // Set initial indicator
-  // $indicator.text('1 of ' + totalSlides);
+  $indicator.text('1 of ' + totalSlides);
 
-  // $('#prevBtn').on('click', function () {
-  //   $('#carouselExample').carousel('prev');
-  // });
+  $('#prevBtn').on('click', function () {
+    $('#carouselExample').carousel('prev');
+  });
 
-  // // Custom Next Button
-  // $('#nextBtn').on('click', function () {
-  //   $('#carouselExample').carousel('next');
-  // });
+  // Custom Next Button
+  $('#nextBtn').on('click', function () {
+    $('#carouselExample').carousel('next');
+  });
 
   $(document).on('change', "#year-select,#filter-dropdown ", function () {
-
     const selectedYear = parseInt($("#year-select").val());
     var statusrecord = $("#filter-dropdown option:selected").val();
-    var StatusOptions = $(".filter-status-select").select2('data');
-    // console.log("StatusOptions:",StatusOptions)
-    var OptionValues = StatusOptions.map(function (option) {
-      return { bookingstatus: option.element.value };
-    });
-
-    // console.log("statusrecord:", OptionValues);
+    // console.log("statusrecord:", statusrecord);
     if (statusrecord == 0) {
       statusrecord = null;
     }
-    createCalendar(selectedYear, OptionValues);
+    createCalendar(selectedYear, statusrecord);
   });
 
   $(document).on('click', ".cell_values", function () {
-    // console.log("cell values clicked");
-    UpdateSectionList = [];
     BookingDataExistList.length = 0;
     $(".carousel-indicators").empty();
     $("#suite_new,#venue_new").empty();
@@ -285,7 +291,7 @@ $(document).ready(function () {
           var VenueID = VenueTemp.ID;
 
           const results = searchByCriteria('Madhus Provisional', VenueID, SuiteID, dateVal);
-          // console.log("results-for-sp:", results)
+          // console.log("results:", results)
           if (results.length > 0 && BookingDataExistList.length == 0) {
             BookingDataExistList = BookingDataExistList.concat(results);
           }
@@ -309,10 +315,7 @@ $(document).ready(function () {
             const result = searchBySalesOpp(salesOppID);
             // console.log("resultData", result);
             var resultData = result[0];
-            var total_Number = resultData.Number_of || "";
-            var Sales_person = resultData.Sales_Person_Name || resultData.Sales_Person || "";
-            // console.log("sales : ",resultData.Sales_person)
-
+            var contactAttrID = resultData.Contact_ID || "";
 
           }
           // console.log("salesOppID:", salesOppID)
@@ -365,22 +368,13 @@ $(document).ready(function () {
             });
           }
           else {
-            // console.log("*******", EmailTemplate_List)
+            console.log("*******", EmailTemplate_List)
             EmailTemplate_List.forEach(tempelement => {
               TemplateOptions += '<option value="' + tempelement.recid + '">' + tempelement.Template_Name + '</option>';
             });
           }
 
-          UpdateSectionList.push({
-            "SuiteID":SuiteID,
-            "VenueID":VenueID,
-            "Date_of_Booking":Date_of_Booking,
-            "bookingStatusID":bookingStatusID,
-            "RecordID":RecordID
-          });
-
           var carouselClass = k === 0 ? 'active' : '';
-          // var carouselClass ='active' ;
           var carouselDom = `<div class="carousel-item ${carouselClass}"><div class="row mb-2">
             <div class="col-4" style="font-size: 15px;">
               Venue:
@@ -555,7 +549,7 @@ $(document).ready(function () {
                 allowClear: false,
                 dropdownParent: element.closest('.carousel-item').parent()
               });
-              // console.log('Select2 initialized for:', element.attr('id'));
+              console.log('Select2 initialized for:', element.attr('id'));
             }
           }
 
@@ -679,22 +673,9 @@ $(document).ready(function () {
         //   }));
         // });
       }
-      var $carousel = $('#carouselExample');
-      var $indicator = $('#carouselIndicator');
-      var totalSlides = $('#carouselExample .carousel-item').length;
-      const liElements = document.querySelectorAll('.carousel-indicators li');
+      var totalSlides1 = $('#carouselExample .carousel-item').length;
       var currentSlide = $('#carouselExample .carousel-item.active').index() + 1;
-      $indicator.text(1 + ' of ' + totalSlides);
-
-  // Add click event listeners to each <li> element
-    liElements.forEach((li, index) => {
-      li.addEventListener('click', () => {
-        // console.log(`Clicked on slide ${index + 1}`);
-        $indicator.text(index+1 + ' of ' + totalSlides);
-        // console.log(index,totalSlides);
-        // You can add any logic here, like switching the carousel slide
-      });
-    });
+      $indicator.text(1 + ' of ' + totalSlides1);
       // $('#carouselModal').modal('show');
       if (bulkSelectEnabled) {
         $('#carouselModal').modal('hide');
@@ -823,11 +804,6 @@ $(document).ready(function () {
     var LoginEmail = initparams.loginUser;
     // LoginEmail ="arjun@madhus.co.uk";
 
-    $(".addrec").prop("disabled", true).text("Saving...");
-
-
-
-
 
     var checkboxdata = $("#flexCheckDefault").prop("checked");
     var venueIDValue = $('#venue_new option:selected').val();
@@ -870,9 +846,9 @@ $(document).ready(function () {
       }
 
       if (bookingStatusName == "Confirmed" || bookingStatusName == "3rd Option" || bookingStatusName == "2nd Option with hotel" || bookingStatusName == "Provisional" || bookingStatusID == "0") {
-        // console.log("Venue: ", venueIDValue, " Suite: ", suiteIDValue, " Date_of_Booking: ", dateval)
+        console.log("Venue: ", venueIDValue, " Suite: ", suiteIDValue, " Date_of_Booking: ", dateval)
         SearchBookingRecords_Func(suiteIDValue, dateval, "196576000000012027").then(respdata => {
-          // console.log("respdata:", respdata);
+          console.log("respdata:", respdata);
 
           if (respdata == "true" && LoginEmail == "arjun@madhus.co.uk") {
 
@@ -897,7 +873,6 @@ $(document).ready(function () {
                       showConfirmButton: false,
                       timer: 2500
                     });
-                    $(".addrec").prop("disabled", false).text("Save");
                     $('#carouselModal').modal('hide');
                     $("#booking-sales-person_new , #booking-Enquiry-Reference_new,#booking-total-number-of-guests_new,#booking-contact_new,#booking-mandatory-bedrooms_new,#booking-price-per-bedroom_new,#booking-notes_new").val("");
                     $('#bulk-select').prop('checked', false);
@@ -908,7 +883,7 @@ $(document).ready(function () {
                       FinalBookinglist = ReturnVal;
                       var selectedYearval = parseInt($("#year-select option:selected").val());
                       var StatusOptions = $(".filter-status-select").select2('data');
-                      // console.log("StatusOptions:", StatusOptions)
+                      console.log("StatusOptions:", StatusOptions)
                       var OptionValues = StatusOptions.map(function (option) {
                         return { bookingstatus: option.element.value };
                       });
@@ -921,7 +896,7 @@ $(document).ready(function () {
                       if (venuerecord == 0) {
                         venuerecord = null;
                       }
-                      createCalendar(selectedYearval, OptionValues, suiteRecord, venuerecord);
+                      createCalendar(selectedYearval, StatusOptions, suiteRecord, venuerecord);
                     });
                   }
                 });
@@ -941,7 +916,6 @@ $(document).ready(function () {
               timer: 3500
             }).then((result) => {
               $('#booking-status_new').val("0");
-              $(".addrec").prop("disabled", false).text("Save");
               // $(".addrec").hide();
             });
           }
@@ -956,7 +930,6 @@ $(document).ready(function () {
                   showConfirmButton: false,
                   timer: 2500
                 });
-                $(".addrec").prop("disabled", false).text("Save");
                 $('#carouselModal').modal('hide');
                 $("#booking-sales-person_new , #booking-Enquiry-Reference_new,#booking-total-number-of-guests_new,#booking-contact_new,#booking-mandatory-bedrooms_new,#booking-price-per-bedroom_new,#booking-notes_new").val("");
                 $('#bulk-select').prop('checked', false);
@@ -967,24 +940,20 @@ $(document).ready(function () {
                   FinalBookinglist = ReturnVal;
                   var selectedYearval = parseInt($("#year-select option:selected").val());
                   var StatusOptions = $(".filter-status-select").select2('data');
-                  // console.log("StatusOptions:", StatusOptions)
+                  console.log("StatusOptions:", StatusOptions)
                   var OptionValues = StatusOptions.map(function (option) {
                     return { bookingstatus: option.element.value };
                   });
-                  // var suiteRecord = $("#filter-suite-dropdown option:selected").val();
-                  // // console.log("statusrecord:", statusrecord);
-                  // if (suiteRecord == 0) {
-                  //   suiteRecord = null;
-                  // }
-                  // var venuerecord = $("#filter-venue-dropdown option:selected").val();
-                  // if (venuerecord == 0) {
-                  //   venuerecord = null;
-                  // }
-                  const queryParams = ZOHO.CREATOR.UTIL.getQueryParams();
-                  console.log("queryParams",queryParams);
-                  suiteRecord = queryParams.suiteID;
-                  venuerecord = queryParams.venueID;
-                  createCalendar(selectedYearval, OptionValues, suiteRecord, venuerecord);
+                  var suiteRecord = $("#filter-suite-dropdown option:selected").val();
+                  // console.log("statusrecord:", statusrecord);
+                  if (suiteRecord == 0) {
+                    suiteRecord = null;
+                  }
+                  var venuerecord = $("#filter-venue-dropdown option:selected").val();
+                  if (venuerecord == 0) {
+                    venuerecord = null;
+                  }
+                  createCalendar(selectedYearval, StatusOptions, suiteRecord, venuerecord);
                 });
               }
             });
@@ -1002,7 +971,6 @@ $(document).ready(function () {
               showConfirmButton: false,
               timer: 2500
             });
-            $(".addrec").prop("disabled", false).text("Save");
             $('#carouselModal').modal('hide');
             $("#booking-sales-person_new , #booking-Enquiry-Reference_new,#booking-total-number-of-guests_new,#booking-contact_new,#booking-mandatory-bedrooms_new,#booking-price-per-bedroom_new,#booking-notes_new").val("");
             $('#bulk-select').prop('checked', false);
@@ -1013,7 +981,7 @@ $(document).ready(function () {
               FinalBookinglist = ReturnVal;
               var selectedYearval = parseInt($("#year-select option:selected").val());
               var StatusOptions = $(".filter-status-select").select2('data');
-              // console.log("StatusOptions:", StatusOptions)
+              console.log("StatusOptions:", StatusOptions)
               var OptionValues = StatusOptions.map(function (option) {
                 return { bookingstatus: option.element.value };
               });
@@ -1026,7 +994,7 @@ $(document).ready(function () {
               if (venuerecord == 0) {
                 venuerecord = null;
               }
-              createCalendar(selectedYearval, OptionValues, suiteRecord, venuerecord);
+              createCalendar(selectedYearval, StatusOptions, suiteRecord, venuerecord);
             });
           }
         });
@@ -1061,7 +1029,7 @@ $(document).ready(function () {
       //   }
       // });
     } else {
-      // console.log("selectedDates:", selectedDates)
+      console.log("selectedDates:", selectedDates)
 
       // Handle the case where bulkSelectEnabled is true and there are selected dates
       const datePromises = selectedDates.map(dateval => {
@@ -1157,14 +1125,13 @@ $(document).ready(function () {
             // console.log("ReturnVal New:", ReturnVal);
             FinalBookinglist = ReturnVal;
             var selectedYearval = parseInt($("#year-select option:selected").val());
+            var statusrecord = $("#filter-dropdown option:selected").val();
+            // console.log("statusrecord:", statusrecord);
+            if (statusrecord == 0) {
+              statusrecord = null;
+            }
 
-            var StatusOptions = $(".filter-status-select").select2('data');
-            // console.log("StatusOptions:", StatusOptions)
-            var OptionValues = StatusOptions.map(function (option) {
-              return { bookingstatus: option.element.value };
-            });
-
-            createCalendar(selectedYearval, OptionValues, []);
+            createCalendar(selectedYearval, statusrecord, []);
           });
         } else {
           Swal.fire({
@@ -1198,7 +1165,6 @@ $(document).ready(function () {
     var venueIDValue = activeSlide.find('#venue-1 option:selected').val();
     var suiteIDValue = activeSlide.find('#suites-1 option:selected').val();
     var bookingStatusID = activeSlide.find('#booking-status-1 option:selected').val();
-    var bookingStatusName = activeSlide.find('#booking-status-1 option:selected').text();
     var notesval = activeSlide.find('#booking-notes-1').val();
     var dateval = activeSlide.find('#booking-date-1').val();
     var bookingSalesOpportunityID = activeSlide.find('#booking-sales-opportunity-1 option:selected').val();
@@ -1230,202 +1196,40 @@ $(document).ready(function () {
       },
     }
 
-    const searchCriteria = {
-      RecordID: Record_ID,
-      VenueID: venueIDValue,
-      SuiteID:suiteIDValue,
-      bookingStatusID: bookingStatusID,
-      Date_of_Booking:dateval
-    };
-    console.log('searchCriteria:'+searchCriteria);
-    const exists = UpdateSectionList.some(booking => 
-      booking.RecordID === searchCriteria.RecordID &&
-      booking.VenueID === searchCriteria.VenueID &&
-      booking.bookingStatusID === searchCriteria.bookingStatusID &&
-      booking.Date_of_Booking === searchCriteria.Date_of_Booking
-    );
+    ZOHO.CREATOR.API.updateRecord({
+      appName: "bookings",
+      reportName: "Booking_Report",
+      id: Record_ID,
+      data: formData
+    }).then(function (response) {
+      if (response.code == 3000) {
+        console.log("Record updated successfully");
+        Swal.fire({
+          position: "middle",
+          icon: "success",
+          title: "<span class='sweet-box-title'>Record Updated Successfully !!</span>",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        $('#carouselModal').modal('hide');
 
-    console.log("exists:",exists)
+        fetchRecordsFunc("").then(ReturnVal => {
+          // FinalBookinglist = [];
+          FinalBookinglist.length = 0;
+          // console.log("ReturnVal New:", ReturnVal);
 
-    var initparams = ZOHO.CREATOR.UTIL.getInitParams();
-    console.log("initparams:",initparams);
-
-    var LoginEmail=initparams.loginUser;
-    // LoginEmail ="arjun@madhus.co.uk"
-    // console.log("exists:",exists);
-    console.log("bookingStatusName:",bookingStatusName)
-
-
-    if (exists == false)
-    {
-      if (bookingStatusName == "Confirmed" || bookingStatusName =="3rd Option" || bookingStatusName =="2nd Option with hotel" || bookingStatusName =="Provisional" || bookingStatusID =="0")
-      {
-        SearchBookingRecords_Update_Func(suiteIDValue,dateval,"196576000000012027",Record_ID).then(respdata=>{
-          console.log("respdata:",respdata);
-          if (respdata=="true" && LoginEmail =="arjun@madhus.co.uk")
-          {
-
-            Swal.fire({
-              title: "Are you sure?",
-              text: "There is a confirmed booking for this date. Should you wish to continue?",
-              icon: "warning",
-              showCancelButton: true,
-              confirmButtonColor: "#3085d6",
-              cancelButtonColor: "#d33",
-              confirmButtonText: "Yes, Proceed"
-            }).then((result) => {
-              if (result.isConfirmed) {
-                ZOHO.CREATOR.API.updateRecord({
-                  appName: "bookings",
-                  reportName: "Booking_Report",
-                  id: Record_ID,
-                  data: formData
-                }).then(function (response) {
-                  if (response.code == 3000) {
-                    console.log("Record updated successfully");
-                    Swal.fire({
-                      position: "middle",
-                      icon: "success",
-                      title: "<span class='sweet-box-title'>Record Updated Successfully !!</span>",
-                      showConfirmButton: false,
-                      timer: 1500
-                    });
-                    $('#carouselModal').modal('hide');
-            
-                    fetchRecordsFunc("").then(ReturnVal => {
-                      // FinalBookinglist = [];
-                      FinalBookinglist.length = 0;
-                      // console.log("ReturnVal New:", ReturnVal);
-            
-                      FinalBookinglist = ReturnVal;
-                      var selectedYearval = parseInt($("#year-select option:selected").val());
-                      var StatusOptions = $(".filter-status-select").select2('data');
-                      console.log("StatusOptions:",StatusOptions)
-                      var OptionValues = StatusOptions.map(function (option) {
-                        return { bookingstatus: option.element.value };
-                      });
-                      var suiteRecord = $("#filter-suite-dropdown option:selected").val();
-                      // console.log("statusrecord:", statusrecord);
-                      if (suiteRecord == 0) {
-                        suiteRecord = null;
-                      }
-                      var venuerecord = $("#filter-venue-dropdown option:selected").val();
-                      if (venuerecord == 0) {
-                        venuerecord = null;
-                      }
-                      createCalendar(selectedYearval, OptionValues, suiteRecord, venuerecord);
-                    });
-                  }
-                });
-
-              }
-            });
+          FinalBookinglist = ReturnVal;
+          var selectedYearval = parseInt($("#year-select option:selected").val());
+          var statusrecord = $("#filter-dropdown option:selected").val();
+          // console.log("statusrecord:", statusrecord)
+          if (statusrecord == 0) {
+            statusrecord = null;
           }
-          else if (respdata=="true" && LoginEmail !="arjun@madhus.co.uk")
-          {
-            Swal.fire({
-              position: "middle",
-              icon: "error",
-              title: "Existing record found for the same day",
-              showConfirmButton: false,
-              timer: 3500
-            }).then((result)=>{
-              // $('#booking-status_new').val("0");
-              // // $(".addrec").hide();
-            });
-          }
-          else if (respdata=="false")
-          {
-            ZOHO.CREATOR.API.updateRecord({
-              appName: "bookings",
-              reportName: "Booking_Report",
-              id: Record_ID,
-              data: formData
-            }).then(function (response) {
-              if (response.code == 3000) {
-                console.log("Record updated successfully");
-                Swal.fire({
-                  position: "middle",
-                  icon: "success",
-                  title: "<span class='sweet-box-title'>Record Updated Successfully !!</span>",
-                  showConfirmButton: false,
-                  timer: 1500
-                });
-                $('#carouselModal').modal('hide');
-        
-                fetchRecordsFunc("").then(ReturnVal => {
-                  // FinalBookinglist = [];
-                  FinalBookinglist.length = 0;
-                  // console.log("ReturnVal New:", ReturnVal);
-        
-                  FinalBookinglist = ReturnVal;
-                  var selectedYearval = parseInt($("#year-select option:selected").val());
-                  var StatusOptions = $(".filter-status-select").select2('data');
-                  console.log("StatusOptions:",StatusOptions)
-                  var OptionValues = StatusOptions.map(function (option) {
-                    return { bookingstatus: option.element.value };
-                  });
-                  var suiteRecord = $("#filter-suite-dropdown option:selected").val();
-                  // console.log("statusrecord:", statusrecord);
-                  if (suiteRecord == 0) {
-                    suiteRecord = null;
-                  }
-                  var venuerecord = $("#filter-venue-dropdown option:selected").val();
-                  if (venuerecord == 0) {
-                    venuerecord = null;
-                  }
-                  createCalendar(selectedYearval, OptionValues, suiteRecord, venuerecord);
-                });
-              }
-            });
 
-          }
+          createCalendar(selectedYearval, statusrecord);
         });
       }
-    }
-    else
-    {
-      ZOHO.CREATOR.API.updateRecord({
-          appName: "bookings",
-          reportName: "Booking_Report",
-          id: Record_ID,
-          data: formData
-        }).then(function (response) {
-          if (response.code == 3000) {
-            console.log("Record updated successfully");
-            Swal.fire({
-              position: "middle",
-              icon: "success",
-              title: "<span class='sweet-box-title'>Record Updated Successfully !!</span>",
-              showConfirmButton: false,
-              timer: 1500
-            });
-            $('#carouselModal').modal('hide');
-    
-            fetchRecordsFunc("").then(ReturnVal => {
-              // FinalBookinglist = [];
-              FinalBookinglist.length = 0;
-              // console.log("ReturnVal New:", ReturnVal);
-    
-              FinalBookinglist = ReturnVal;
-              var selectedYearval = parseInt($("#year-select option:selected").val());
-              var statusrecord = $("#filter-dropdown option:selected").val();
-              // console.log("statusrecord:", statusrecord)
-    
-              var StatusOptions = $(".filter-status-select").select2('data');
-              console.log("StatusOptions:",StatusOptions)
-              var OptionValues = StatusOptions.map(function (option) {
-                return { bookingstatus: option.element.value };
-              });
-              if (statusrecord == 0) {
-                statusrecord = null;
-              }
-    
-              createCalendar(selectedYearval, OptionValues);
-            });
-          }
-        });
-    }
+    });
 
   });
   // Delete Records function
@@ -1471,3 +1275,190 @@ $(document).ready(function () {
 
 });
 
+// Fetch Ragamama dates
+async function fetchRagamamaDates() {
+  try {
+    let criteria = `Booking_Status.ID == 196576000000012035`;
+    var config = { 
+        appName: "bookings",
+        reportName: "Booking_Report", 
+        criteria: criteria,
+        page: 1,
+        pageSize: 10
+    };
+
+    const response = await ZOHO.CREATOR.API.getAllRecords(config);
+    var ragamamaDropdown = document.getElementById('ragamama-date');
+    ragamamaDropdown.innerHTML = ''; // Clear existing options
+
+    // Add default "Select Date" option and set it as selected
+    var defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Select Date";
+    defaultOption.selected = true; // Set as default selected
+    ragamamaDropdown.appendChild(defaultOption);
+
+    var recordArr = response.data;
+    if (recordArr && recordArr.length > 0) {
+        recordArr.forEach(function(record) {
+            var option = document.createElement('option');
+            option.value = record.Date_of_Booking; // Assuming 'Date' is the field name
+            option.textContent = record.Date_of_Booking;
+            ragamamaDropdown.appendChild(option);
+        });
+        ragamamaDropdown.disabled = false; // Enable the dropdown if options are added
+        ragamamaDropdown.title = ""; // Clear tooltip
+    } else {
+        ragamamaDropdown.disabled = true; // Disable if no options are available
+        ragamamaDropdown.title = "No dates available"; // Set tooltip for disabled state
+    }
+  } catch (error) {
+    console.error('Error fetching Ragamama dates');
+    document.getElementById('ragamama-date').disabled = true; // Disable on error
+    document.getElementById('ragamama-date').title = "Failed to fetch dates"; // Set tooltip on error
+  }
+}
+
+// Fetch Madhu's dates
+async function fetchMadhuDates() {
+  try {
+    let criteria2 = `Booking_Status.ID == 196576000000012039`;
+    var config = { 
+        appName: "bookings",
+        reportName: "Booking_Report", 
+        criteria: criteria2,
+        page: 1,
+        pageSize: 10
+    };
+
+    const response = await ZOHO.CREATOR.API.getAllRecords(config);
+    var madhuDropdown = document.getElementById('madhu-date');
+    madhuDropdown.innerHTML = ''; // Clear existing options
+
+    // Add default "Select Date" option and set it as selected
+    var defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Select Date";
+    defaultOption.selected = true; // Set as default selected
+    madhuDropdown.appendChild(defaultOption);
+
+    var recordArr = response.data;
+    if (recordArr && recordArr.length > 0) {
+        recordArr.forEach(function(record) {
+            var option = document.createElement('option');
+            option.value = record.Date_of_Booking; // Assuming 'Date' is the field name
+            option.textContent = record.Date_of_Booking;
+            madhuDropdown.appendChild(option);
+        });
+        madhuDropdown.disabled = false; // Enable the dropdown if options are added
+        madhuDropdown.title = ""; // Clear tooltip
+    } else {
+        madhuDropdown.disabled = true; // Disable if no options are available
+        madhuDropdown.title = "No dates available"; // Set tooltip for disabled state
+    }
+  } catch (error) {
+    console.error('Error fetching Madhu dates');
+    document.getElementById('madhu-date').disabled = true; // Disable on error
+    document.getElementById('madhu-date').title = "Failed to fetch dates"; // Set tooltip on error
+  }
+}
+
+
+
+
+$(document).ready(function() {
+  let isLoading = false;
+
+  $('#confirm-swap').on('click', async function(event) {
+      event.preventDefault();
+
+      if (isLoading) return; // Prevent multiple clicks while loading
+      isLoading = true;
+
+      // Show loading indicator
+      Swal.fire({
+          title: 'Processing...',
+          text: 'Please wait.',
+          allowEscapeKey: false,
+          allowOutsideClick: false,
+          onBeforeOpen: () => {
+              Swal.showLoading();
+          }
+      });
+
+      const ragamamaDate = $('#ragamama-date').val();
+      const madhuDate = $('#madhu-date').val();
+
+      if (!ragamamaDate || !madhuDate) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Please select both dates before confirming the swap.',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+          });
+          isLoading = false;
+          return;
+      }
+
+      const ragamamaCriteria = `Date_of_Booking == "${ragamamaDate}" && Booking_Status == 196576000000012035`;
+      const madhuCriteria = `Date_of_Booking == "${madhuDate}" && Booking_Status == 196576000000012039`;
+
+      const ragamamaConfig = { appName: "bookings", reportName: "Booking_Report", criteria: ragamamaCriteria, page: 1, pageSize: 10 };
+      const ragamamaResponse = await ZOHO.CREATOR.API.getAllRecords(ragamamaConfig);
+      const ragamamaId = ragamamaResponse.data.length > 0 ? ragamamaResponse.data[0].ID : null;
+
+      const madhuConfig = { appName: "bookings", reportName: "Booking_Report", criteria: madhuCriteria, page: 1, pageSize: 10 };
+      const madhuResponse = await ZOHO.CREATOR.API.getAllRecords(madhuConfig);
+      const madhuId = madhuResponse.data.length > 0 ? madhuResponse.data[0].ID : null;
+
+      if (!ragamamaId || !madhuId) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Could not find records for the selected dates.',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+          });
+          isLoading = false;
+          return;
+      }
+
+      const formDataR = { "data": { "Booking_Status": "196576000000012039" } };
+      const configR = { appName: "bookings", reportName: "Booking_Report", id: ragamamaId, data: formDataR };
+
+      await ZOHO.CREATOR.API.updateRecord(configR);
+
+      const formDataM = { "data": { "Booking_Status": "196576000000012035" } };
+      const configM = { appName: "bookings", reportName: "Booking_Report", id: madhuId, data: formDataM };
+
+      await ZOHO.CREATOR.API.updateRecord(configM);
+
+      Swal.fire({
+          title: 'Success!',
+          text: 'The booking swap has been confirmed.',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 2500
+      });
+
+      isLoading = false; // Reset loading state
+      $('#myModal').modal('hide');
+
+      fetchRecordsFunc("").then(ReturnVal => {
+        // FinalBookinglist = [];
+        FinalBookinglist.length = 0;
+        // console.log("ReturnVal New:", ReturnVal);
+
+        FinalBookinglist = ReturnVal;
+        var selectedYearval = parseInt($("#year-select option:selected").val());
+        var statusrecord = $("#filter-dropdown option:selected").val();
+        // console.log("statusrecord:", statusrecord)
+        if (statusrecord == 0) {
+          statusrecord = null;
+        }
+
+        createCalendar(selectedYearval, statusrecord);
+      });
+  });
+});
