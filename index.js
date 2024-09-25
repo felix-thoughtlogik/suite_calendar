@@ -1376,15 +1376,16 @@ $(document).ready(function() {
       isLoading = true;
 
       // Show loading indicator
-      Swal.fire({
-          title: 'Processing...',
-          text: 'Please wait.',
-          allowEscapeKey: false,
-          allowOutsideClick: false,
-          onBeforeOpen: () => {
-              Swal.showLoading();
-          }
-      });
+      // Swal.fire({
+      //     title: 'Processing...',
+      //     text: 'Please wait.',
+      //     allowEscapeKey: false,
+      //     allowOutsideClick: false,
+      //     onBeforeOpen: () => {
+      //         Swal.showLoading();
+      //     }
+      // });
+       
 
       const ragamamaDate = $('#ragamama-date').val();
       const madhuDate = $('#madhu-date').val();
@@ -1423,6 +1424,21 @@ $(document).ready(function() {
           isLoading = false;
           return;
       }
+      const Toast1 = Swal.mixin({
+        toast: true,
+        position: "center",
+        showConfirmButton: false,
+        timer: 4500,
+        timerProgressBar: true,
+        didOpen: (toast1) => {
+          toast1.onmouseenter = Swal.stopTimer;
+          toast1.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      Toast1.fire({
+        icon: "info",
+        title: "Processing... Please wait."
+      });
 
       const formDataR = { "data": { "Booking_Status": "196576000000012039" } };
       const configR = { appName: "bookings", reportName: "Booking_Report", id: ragamamaId, data: formDataR };
@@ -1431,19 +1447,36 @@ $(document).ready(function() {
 
       const formDataM = { "data": { "Booking_Status": "196576000000012035" } };
       const configM = { appName: "bookings", reportName: "Booking_Report", id: madhuId, data: formDataM };
-
-      await ZOHO.CREATOR.API.updateRecord(configM);
-
-      Swal.fire({
-          title: 'Success!',
-          text: 'The booking swap has been confirmed.',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2500
+      
+      
+      const resp = await ZOHO.CREATOR.API.updateRecord(configM);
+      console.log("resp:",resp);
+      
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: false,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
       });
-
+      if(resp.code == 3000){
+        Toast.fire({
+          icon: "success",
+          title: "The booking swap has been confirmed."
+        });
+      }else{
+        Toast.fire({
+          icon: "error",
+          title: resp.message
+        });
+      }
+      
       isLoading = false; // Reset loading state
-      $('#myModal').modal('hide');
+      
 
       fetchRecordsFunc("").then(ReturnVal => {
         // FinalBookinglist = [];
@@ -1457,8 +1490,11 @@ $(document).ready(function() {
         if (statusrecord == 0) {
           statusrecord = null;
         }
-
         createCalendar(selectedYearval, statusrecord);
+        fetchRagamamaDates();
+        fetchMadhuDates();
+        // document.getElementById('myModal').style.display='none';
+        $('#myModal').hide();
       });
   });
 });
