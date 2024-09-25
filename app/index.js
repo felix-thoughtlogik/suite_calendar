@@ -689,11 +689,11 @@ $(document).ready(function () {
       $indicator.text(1 + ' of ' + totalSlides);
 
   // Add click event listeners to each <li> element
-    liElements.forEach((li, index) => {
+    liElements.forEach((li, i) => {
       li.addEventListener('click', () => {
-        // console.log(`Clicked on slide ${index + 1}`);
-        $indicator.text(index+1 + ' of ' + totalSlides);
-        // console.log(index,totalSlides);
+        // console.log(`Clicked on slide ${i + 1}`);
+        $indicator.text(i+1 + ' of ' + totalSlides);
+        // console.log(i,totalSlides);
         // You can add any logic here, like switching the carousel slide
       });
     });
@@ -1004,6 +1004,7 @@ $(document).ready(function () {
               showConfirmButton: false,
               timer: 2500
             });
+
             $(".addrec").prop("disabled", false).text("Save");
             $('#carouselModal').modal('hide');
             $("#booking-sales-person_new , #booking-Enquiry-Reference_new,#booking-total-number-of-guests_new,#booking-contact_new,#booking-mandatory-bedrooms_new,#booking-price-per-bedroom_new,#booking-notes_new").val("");
@@ -1066,7 +1067,7 @@ $(document).ready(function () {
       // console.log("selectedDates:", selectedDates)
 
       // Handle the case where bulkSelectEnabled is true and there are selected dates
-      const datePromises = selectedDates.map(dateval => {
+      const datePromises = selectedDates.map((dateval,index) => {
         var formData = {
           "data": {
             "Inform_to_Hotel": checkboxdata,
@@ -1110,8 +1111,8 @@ $(document).ready(function () {
         }
         if (index === selectedDates.length - 1) {
           conditiontext = "true";
-          const IDs_List1 = IDs_List.join(',');
-          console.log("IDs_List1", IDs_List)
+          // const IDs_List1 = IDs_List.join(',');
+          // console.log("IDs_List1", IDs_List1)
           formData = {
             "data": {
               "Inform_to_Hotel": checkboxdata,
@@ -1149,6 +1150,7 @@ $(document).ready(function () {
             showConfirmButton: false,
             timer: 2500
           });
+          $(".addrec").prop("disabled", false).text("Save");
           $('#carouselModal').modal('hide');
           $("#booking-sales-person_new , #booking-Enquiry-Reference_new,#booking-total-number-of-guests_new,#booking-contact_new,#booking-mandatory-bedrooms_new,#booking-price-per-bedroom_new,#booking-notes_new").val("");
           $('#bulk-select').prop('checked', false);
