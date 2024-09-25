@@ -190,7 +190,19 @@ $(document).ready(function () {
     $('#newBtn').addClass('btn-secondary').removeClass('btn-info');
     $('#existBtn').addClass('btn-info').removeClass('btn-primary');
   });
+  $('#bulk-select').on('click', function name(params) {
+    console.log("worked");
+    var isChecked = document.getElementById('bulk-select').checked;
+    console.log(isChecked);
+    if (!isChecked) {
+      var selectedYearval = parseInt($("#year-select option:selected").val());
+      var statusrecord = $("#filter-dropdown option:selected").val();
 
+      createCalendar(selectedYearval, statusrecord);
+      fetchRagamamaDates();
+      fetchMadhuDates();
+    }
+  });
   // $('#carouselExample').on('slid.bs.carousel', function () {
   //   var totalSlides2 = $('#carouselExample .carousel-item').length;
   //   var currentSlide = $('#carouselExample .carousel-item.active').index() + 1;
