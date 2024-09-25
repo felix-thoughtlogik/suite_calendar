@@ -27,6 +27,8 @@ $(document).ready(function () {
     BookingRecords_Func();
     EmailTemplate_List_Func();
     SalesOppRecords_Func();
+    fetchRagamamaDates();
+    fetchMadhuDates();
     if (FinalBookinglist.length == 0) {
       fetchRecordsFunc("").then(ReturnVal => {
         // console.log("ReturnVal New:", ReturnVal);
@@ -1163,7 +1165,8 @@ $(document).ready(function () {
             var OptionValues = StatusOptions.map(function (option) {
               return { bookingstatus: option.element.value };
             });
-
+            fetchRagamamaDates();
+            fetchMadhuDates();
             createCalendar(selectedYearval, OptionValues, []);
           });
         } else {
@@ -1184,6 +1187,7 @@ $(document).ready(function () {
         });
       });
     }
+    
   });
 
   // Update Records function
@@ -1421,12 +1425,14 @@ $(document).ready(function () {
                 statusrecord = null;
               }
     
+              fetchRagamamaDates();
+              fetchMadhuDates();
               createCalendar(selectedYearval, OptionValues);
             });
           }
         });
     }
-
+    
   });
   // Delete Records function
   $(document).on("click", ".deleterec", function () {
@@ -1462,7 +1468,8 @@ $(document).ready(function () {
           if (statusrecord == 0) {
             statusrecord = null;
           }
-
+          fetchRagamamaDates();
+          fetchMadhuDates();
           createCalendar(selectedYearval, statusrecord);
         });
       }
@@ -1470,4 +1477,227 @@ $(document).ready(function () {
   });
 
 });
+async function fetchRagamamaDates() {
+  try {
+    let criteria = `Booking_Status.ID == 196576000000012035`;
+    var config = { 
+        appName: "bookings",
+        reportName: "Booking_Report", 
+        criteria: criteria,
+        page: 1,
+        pageSize: 10
+    };
+
+    const response = await ZOHO.CREATOR.API.getAllRecords(config);
+    var ragamamaDropdown = document.getElementById('ragamama-date');
+    ragamamaDropdown.innerHTML = ''; // Clear existing options
+
+    // Add default "Select Date" option and set it as selected
+    var defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Select Date";
+    defaultOption.selected = true; // Set as default selected
+    ragamamaDropdown.appendChild(defaultOption);
+
+    var recordArr = response.data;
+    if (recordArr && recordArr.length > 0) {
+        recordArr.forEach(function(record) {
+            var option = document.createElement('option');
+            option.value = record.Date_of_Booking; // Assuming 'Date' is the field name
+            option.textContent = record.Date_of_Booking;
+            ragamamaDropdown.appendChild(option);
+        });
+        ragamamaDropdown.disabled = false; // Enable the dropdown if options are added
+        ragamamaDropdown.title = ""; // Clear tooltip
+    } else {
+        ragamamaDropdown.disabled = true; // Disable if no options are available
+        ragamamaDropdown.title = "No dates available"; // Set tooltip for disabled state
+    }
+  } catch (error) {
+    console.error('Error fetching Ragamama dates');
+    document.getElementById('ragamama-date').disabled = true; // Disable on error
+    document.getElementById('ragamama-date').title = "Failed to fetch dates"; // Set tooltip on error
+  }
+}
+
+// Fetch Madhu's dates
+async function fetchMadhuDates() {
+  try {
+    let criteria2 = `Booking_Status.ID == 196576000000012039`;
+    var config = { 
+        appName: "bookings",
+        reportName: "Booking_Report", 
+        criteria: criteria2,
+        page: 1,
+        pageSize: 10
+    };
+
+    const response = await ZOHO.CREATOR.API.getAllRecords(config);
+    var madhuDropdown = document.getElementById('madhu-date');
+    madhuDropdown.innerHTML = ''; // Clear existing options
+
+    // Add default "Select Date" option and set it as selected
+    var defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Select Date";
+    defaultOption.selected = true; // Set as default selected
+    madhuDropdown.appendChild(defaultOption);
+
+    var recordArr = response.data;
+    if (recordArr && recordArr.length > 0) {
+        recordArr.forEach(function(record) {
+            var option = document.createElement('option');
+            option.value = record.Date_of_Booking; // Assuming 'Date' is the field name
+            option.textContent = record.Date_of_Booking;
+            madhuDropdown.appendChild(option);
+        });
+        madhuDropdown.disabled = false; // Enable the dropdown if options are added
+        madhuDropdown.title = ""; // Clear tooltip
+    } else {
+        madhuDropdown.disabled = true; // Disable if no options are available
+        madhuDropdown.title = "No dates available"; // Set tooltip for disabled state
+    }
+  } catch (error) {
+    console.error('Error fetching Madhu dates');
+    document.getElementById('madhu-date').disabled = true; // Disable on error
+    document.getElementById('madhu-date').title = "Failed to fetch dates"; // Set tooltip on error
+  }
+}
+
+
+
+
+$(document).ready(function() {
+  let isLoading = false;
+
+  $('#confirm-swap').on('click', async function(event) {
+      event.preventDefault();
+
+      if (isLoading) return; // Prevent multiple clicks while loading
+      isLoading = true;
+
+      // Show loading indicator
+      // Swal.fire({
+      //     title: 'Processing...',
+      //     text: 'Please wait.',
+      //     allowEscapeKey: false,
+      //     allowOutsideClick: false,
+      //     onBeforeOpen: () => {
+      //         Swal.showLoading();
+      //     }
+      // });
+       
+
+      const ragamamaDate = $('#ragamama-date').val();
+      const madhuDate = $('#madhu-date').val();
+
+      if (!ragamamaDate || !madhuDate) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Please select both dates before confirming the swap.',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+          });
+          isLoading = false;
+          return;
+      }
+
+      const ragamamaCriteria = `Date_of_Booking == "${ragamamaDate}" && Booking_Status == 196576000000012035`;
+      const madhuCriteria = `Date_of_Booking == "${madhuDate}" && Booking_Status == 196576000000012039`;
+
+      const ragamamaConfig = { appName: "bookings", reportName: "Booking_Report", criteria: ragamamaCriteria, page: 1, pageSize: 10 };
+      const ragamamaResponse = await ZOHO.CREATOR.API.getAllRecords(ragamamaConfig);
+      const ragamamaId = ragamamaResponse.data.length > 0 ? ragamamaResponse.data[0].ID : null;
+
+      const madhuConfig = { appName: "bookings", reportName: "Booking_Report", criteria: madhuCriteria, page: 1, pageSize: 10 };
+      const madhuResponse = await ZOHO.CREATOR.API.getAllRecords(madhuConfig);
+      const madhuId = madhuResponse.data.length > 0 ? madhuResponse.data[0].ID : null;
+
+      if (!ragamamaId || !madhuId) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Could not find records for the selected dates.',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 2500
+          });
+          isLoading = false;
+          return;
+      }
+      const Toast1 = Swal.mixin({
+        toast: true,
+        position: "center",
+        showConfirmButton: false,
+        timer: 4500,
+        timerProgressBar: true,
+        didOpen: (toast1) => {
+          toast1.onmouseenter = Swal.stopTimer;
+          toast1.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      Toast1.fire({
+        icon: "info",
+        title: "Processing... Please wait."
+      });
+
+      const formDataR = { "data": { "Booking_Status": "196576000000012039" } };
+      const configR = { appName: "bookings", reportName: "Booking_Report", id: ragamamaId, data: formDataR };
+
+      await ZOHO.CREATOR.API.updateRecord(configR);
+
+      const formDataM = { "data": { "Booking_Status": "196576000000012035" } };
+      const configM = { appName: "bookings", reportName: "Booking_Report", id: madhuId, data: formDataM };
+      
+      
+      const resp = await ZOHO.CREATOR.API.updateRecord(configM);
+      console.log("resp:",resp);
+      
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: false,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      if(resp.code == 3000){
+        Toast.fire({
+          icon: "success",
+          title: "The booking swap has been confirmed."
+        });
+      }else{
+        Toast.fire({
+          icon: "error",
+          title: resp.message
+        });
+      }
+      
+      isLoading = false; // Reset loading state
+      
+
+      fetchRecordsFunc("").then(ReturnVal => {
+        // FinalBookinglist = [];
+        FinalBookinglist.length = 0;
+        // console.log("ReturnVal New:", ReturnVal);
+
+        FinalBookinglist = ReturnVal;
+        var selectedYearval = parseInt($("#year-select option:selected").val());
+        var statusrecord = $("#filter-dropdown option:selected").val();
+        // console.log("statusrecord:", statusrecord)
+        if (statusrecord == 0) {
+          statusrecord = null;
+        }
+        createCalendar(selectedYearval, statusrecord);
+        fetchRagamamaDates();
+        fetchMadhuDates();
+        // document.getElementById('myModal').style.display='none';
+        $('#myModal').hide();
+      });
+  });
+});
+
 
