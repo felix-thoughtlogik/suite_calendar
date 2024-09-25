@@ -139,6 +139,7 @@
 
     }
     .modal-content-swapdate {
+    }
       margin-top: -25px !important;
     }
     .modal-content {
@@ -157,9 +158,6 @@
   .modal-backdrop{
     z-index: 0;
   }
-    .modal-content {
-      margin-top: -25px !important;
-    }
 
     @media (min-height: 400px) and (max-height: 600px) {
       table tr {
@@ -342,6 +340,7 @@
     </span>
     <button class="swap-button" id="swap-btn">SWAP DATE</button>
     <span></span>
+
   </div>
   <div class="table-div">
     <table id="multiSelectTable">
@@ -600,6 +599,7 @@
     placeholder: 'Select',
     allowClear: false
   });
+  
 
 </script>
 <script>
@@ -619,6 +619,7 @@
       modal.style.display = "none";
   }
 
+
   // Close the modal when clicking outside of it
   window.onclick = function(event) {
       if (event.target == modal) {
@@ -626,5 +627,4 @@
       }
   }
 </script>
-
 </html>
