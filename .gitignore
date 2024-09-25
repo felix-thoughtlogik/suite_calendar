@@ -3,6 +3,7 @@ dist
 node_modules
 server 
 key.pem
+cert.pem
 package-lock.json
 package.json
 plugin-manifest.json
