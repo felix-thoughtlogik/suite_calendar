@@ -2,7 +2,6 @@
 dist
 node_modules
 server 
-cert.pem
 key.pem
 package-lock.json
 package.json
