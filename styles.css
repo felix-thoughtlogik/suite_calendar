@@ -676,3 +676,159 @@ label {
     padding: 3px;
     font-size: 14px;
 }
+.container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+    margin: auto;
+}
+
+.title {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.swap-button {
+    padding: 8px 16px; /* Slightly larger padding for a more balanced button */
+    background-color: #FF6F61; /* Vibrant coral color */
+    color: #fff; /* White text */
+    border: none; /* No border */
+    border-radius: 12px; /* More rounded corners for a softer look */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 14px; /* Slightly larger font size */
+    font-weight: 600; /* Semi-bold text */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s; /* Smooth transitions */
+}
+
+.swap-button:hover {
+    background-color: #FF5B47; /* Darker coral shade on hover */
+    transform: translateY(-2px); /* Slight lift effect on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.swap-button:active {
+    background-color: #FF4C3B; /* Even darker shade when active */
+    transform: translateY(0); /* Reset lift effect */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Reset shadow */
+}
+
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: auto; /* Center the modal */
+    padding: 20px;
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Soft shadow */
+    width: 90%; /* Full width on smaller screens */
+    max-width: 500px; /* Max width for larger screens */
+    position: relative; /* For positioning */
+    top: 50%; /* Position from top */
+    transform: translateY(-50%); /* Center vertically */
+}
+
+.close {
+    color: #aaa; /* Close button color */
+    float: right; /* Position close button */
+    font-size: 28px; /* Close button size */
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000; /* Change color on hover/focus */
+    text-decoration: none;
+    cursor: pointer; /* Pointer cursor */
+}
+
+.modal-title {
+    text-align: center; /* Centered title */
+    margin-bottom: 20px; /* Space below title */
+    font-size: 24px; /* Title font size */
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 15px; /* Space between form items */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column; /* Stack label and select vertically */
+}
+
+.label {
+    margin-bottom: 5px; /* Space below label */
+    font-weight: 500; /* Medium weight for label */
+}
+
+.dropdown {
+    padding: 10px; /* Comfortable padding for dropdown */
+    border-radius: 5px; /* Rounded corners */
+    border: 1px solid #ccc; /* Light border */
+    transition: border-color 0.3s; /* Smooth border transition */
+    height: 40px; /* Set default height */
+    width: 200px; /* Set default width */
+}
+
+.dropdown:disabled {
+    background-color: #f8f9fa; /* Light background for disabled state */
+    opacity: 0.6; /* Slightly transparent to indicate disabled state */
+    cursor: not-allowed; /* Change cursor to indicate it can't be clicked */
+}
+
+.dropdown:focus {
+    border-color: #28a745; /* Highlight border on focus */
+    outline: none; /* Remove default outline */
+}
+.btn-section {
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+    margin-top: 20px; /* Space above the button */
+}
+
+.confirm-swap-button {
+    padding: 6px 12px; /* Reduced padding for a smaller button */
+    height: 40px; /* Set a fixed height */
+    width: 150px; /* Set a fixed width */
+    background-color: #28a745; /* Fresh green color */
+    color: #fff; /* White text */
+    border: none; /* No border */
+    border-radius: 10px; /* Rounded corners for a modern look */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 12px; /* Smaller font size */
+    font-weight: 600; /* Semi-bold text */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
+    outline: none; /* Remove default outline */
+}
+
+.confirm-swap-button:hover {
+    background-color: #218838; /* Darker shade on hover */
+    transform: translateY(-1px); /* Slight lift effect on hover */
+}
+
+.confirm-swap-button:active {
+    background-color: #1e7e34; /* Even darker shade when active */
+    transform: translateY(0); /* Reset lift effect */
+}
+
+
+
+
