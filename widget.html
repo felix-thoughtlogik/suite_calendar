@@ -157,6 +157,9 @@
   .modal-backdrop{
     z-index: 0;
   }
+    .modal-content {
+      margin-top: -25px !important;
+    }
 
     @media (min-height: 400px) and (max-height: 600px) {
       table tr {
@@ -330,14 +333,15 @@
     </span>
     <span class="filter-container">
       <label for="status-select">Booking Status</label>
-      <select class="filter-status-select" id="filter-dropdown" style="width: 200px;">
+      <!-- <select class="filter-status-select" id="filter-dropdown" style="width: 200px;">
         <option value="0" selected>All Status</option>
+      </select> -->
+      <select id="filter-dropdown" class="js-states form-control filter-status-select" multiple style="width: 200px;">
+        <!-- <option value="0">All Status</option> -->
       </select>
     </span>
     <button class="swap-button" id="swap-btn">SWAP DATE</button>
-    <span>
-
-    </span>
+    <span></span>
   </div>
   <div class="table-div">
     <table id="multiSelectTable">
@@ -560,11 +564,16 @@
   <script src="index.js"></script>
 </body>
 <script>
+
+  $("#multiplecarer").select2({
+    placeholder: "Select Status",
+    // allowClear: true,
+    closeOnSelect: true,
+    dropdownAutoWidth: true
+  });
   let bulkSelectEnabled = false;
   const selectedDates = [];
-      // Initialize local variables to store IDs
-      let ragamamaId = null;
-      let madhuId = null;
+
   // Listener for bulk select checkbox
   document.getElementById('bulk-select').addEventListener('change', function (event) {
     bulkSelectEnabled = event.target.checked;
@@ -584,6 +593,12 @@
   // Update the screen size on window resize
   $(window).resize(function () {
     updateScreenSize();
+  });
+
+  // Initialize Select2 on the sales opportunity dropdown
+  $('.filter-status-select').select2({
+    placeholder: 'Select',
+    allowClear: false
   });
 
 </script>
@@ -611,4 +626,5 @@
       }
   }
 </script>
+
 </html>
