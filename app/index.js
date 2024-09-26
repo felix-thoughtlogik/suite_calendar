@@ -1176,7 +1176,7 @@ $(document).ready(function () {
         toast: true,
         position: "center",
         showConfirmButton: false,
-        timer: selectedDates.length*1000,
+        timer: selectedDates.length*2000,
         timerProgressBar: true,
         didOpen: (toast1) => {
           toast1.onmouseenter = Swal.stopTimer;
