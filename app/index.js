@@ -882,7 +882,17 @@ $(document).ready(function () {
           "Notes": notesval
         },
       }
-
+      const Toast4 = Swal.mixin({
+        toast: true,
+        position: "center",
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+        didOpen: (toast1) => {
+          toast1.onmouseenter = Swal.stopTimer;
+          toast1.onmouseleave = Swal.resumeTimer;
+        }
+      });
       if (bookingStatusName == "Confirmed" || bookingStatusName == "3rd Option" || bookingStatusName == "2nd Option with hotel" || bookingStatusName == "Provisional" || bookingStatusID == "0") {
         // console.log("Venue: ", venueIDValue, " Suite: ", suiteIDValue, " Date_of_Booking: ", dateval)
         SearchBookingRecords_Func(suiteIDValue, dateval, "196576000000012027").then(respdata => {
@@ -900,7 +910,10 @@ $(document).ready(function () {
               confirmButtonText: "Yes, Proceed"
             }).then((result) => {
               if (result.isConfirmed) {
-
+                Toast4.fire({
+                  icon: "info",
+                  title: "Processing... Please wait."
+                });
                 CreateRecord_Func(formData).then(ResponseData => {
                   // console.log("ResponseData:", ResponseData);
                   if (ResponseData === "true") {
@@ -960,6 +973,10 @@ $(document).ready(function () {
             });
           }
           else if (respdata == "false") {
+            Toast4.fire({
+              icon: "info",
+              title: "Processing... Please wait."
+            });
             CreateRecord_Func(formData).then(ResponseData => {
               // console.log("ResponseData:", ResponseData);
               if (ResponseData === "true") {
@@ -1006,6 +1023,10 @@ $(document).ready(function () {
         });
       }
       else {
+        Toast4.fire({
+          icon: "info",
+          title: "Processing... Please wait."
+        });
         CreateRecord_Func(formData).then(ResponseData => {
           // console.log("ResponseData:", ResponseData);
           if (ResponseData === "true") {
@@ -1151,7 +1172,21 @@ $(document).ready(function () {
         [];
         return CreateRecord_Func(formData);
       });
-
+      const Toast5 = Swal.mixin({
+        toast: true,
+        position: "center",
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+        didOpen: (toast1) => {
+          toast1.onmouseenter = Swal.stopTimer;
+          toast1.onmouseleave = Swal.resumeTimer;
+        }
+      });
+      Toast5.fire({
+        icon: "info",
+        title: "Processing... Please wait."
+      });
       Promise.all(datePromises).then(responses => {
         // console.log("Responses:", responses);
         if (responses.every(response => response === "true")) {
@@ -1273,7 +1308,18 @@ $(document).ready(function () {
     // console.log("exists:",exists);
     console.log("bookingStatusName:",bookingStatusName)
 
-
+    const Toast3 = Swal.mixin({
+      toast: true,
+      position: "center",
+      showConfirmButton: false,
+      timer: 3500,
+      timerProgressBar: true,
+      didOpen: (toast1) => {
+        toast1.onmouseenter = Swal.stopTimer;
+        toast1.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    
     if (exists == false)
     {
       if (bookingStatusName == "Confirmed" || bookingStatusName =="3rd Option" || bookingStatusName =="2nd Option with hotel" || bookingStatusName =="Provisional" || bookingStatusID =="0")
@@ -1293,6 +1339,10 @@ $(document).ready(function () {
               confirmButtonText: "Yes, Proceed"
             }).then((result) => {
               if (result.isConfirmed) {
+                Toast3.fire({
+                  icon: "info",
+                  title: "Processing... Please wait."
+                });
                 ZOHO.CREATOR.API.updateRecord({
                   appName: "bookings",
                   reportName: "Booking_Report",
@@ -1354,6 +1404,10 @@ $(document).ready(function () {
           }
           else if (respdata=="false")
           {
+            Toast3.fire({
+              icon: "info",
+              title: "Processing... Please wait."
+            });
             ZOHO.CREATOR.API.updateRecord({
               appName: "bookings",
               reportName: "Booking_Report",
@@ -1403,6 +1457,10 @@ $(document).ready(function () {
     }
     else
     {
+      Toast3.fire({
+        icon: "info",
+        title: "Processing... Please wait."
+      });
       ZOHO.CREATOR.API.updateRecord({
           appName: "bookings",
           reportName: "Booking_Report",
